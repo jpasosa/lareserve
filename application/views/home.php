@@ -26,8 +26,8 @@
     <div class="container">
       <div class="row">
         <div class="span12">
-          <h1> <a href="http://www.lareserve.com.uy/"> <img style="width:100%; height:100%" src="<?php echo base_url() . TEMPLATE_ASSETS; ?>images/logo-spa.png" alt="Convert" /> </a> </h1>
-     
+          <h1> <a href="<?php echo base_url('home'); ?>"> <img style="width:100%; height:100%" src="<?php echo base_url() . TEMPLATE_ASSETS; ?>images/logo-spa.png" alt="Convert" /> </a> </h1>
+
         </div>
         <div class="clearfix"></div>
       </div>
@@ -243,7 +243,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#791212', end
 <script type="text/javascript">
 	$(document).ready(function()
 	{
-		
+
 		$("#commentForm2").validate({
 			messages: {
 				NombreComprador: {
@@ -251,7 +251,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#791212', end
 				}
 			}
 		});
-			
+
 		var nombre = $('#nombre').val();
 		if ( nombre != '') {
 			$('#gift_nombre').text(nombre);
