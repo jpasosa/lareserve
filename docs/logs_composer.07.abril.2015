@@ -1,0 +1,24 @@
+$ composer update
+Warning: This development build of composer is over 30 days old. It is recommended to update it by running "/usr/local/bin/composer self-update" to get the latest version.
+Loading composer repositories with package information
+Updating dependencies (including require-dev)
+  - Installing symfony/http-foundation (v2.6.6)
+    Downloading: 100%
+
+  - Installing symfony/event-dispatcher (v2.6.6)
+    Downloading: 100%
+
+  - Installing guzzle/guzzle (v3.9.3)
+    Downloading: 100%
+
+  - Installing omnipay/common (v2.3.4)
+    Downloading: 100%
+
+  - Installing omnipay/paypal (v2.4.1)
+    Downloading: 100%
+
+symfony/event-dispatcher suggests installing symfony/dependency-injection ()
+symfony/event-dispatcher suggests installing symfony/http-kernel ()
+guzzle/guzzle suggests installing guzzlehttp/guzzle (Guzzle 5 has moved to a new package name. The package you have installed, Guzzle 3, is deprecated.)
+Writing lock file
+Generating autoload files
