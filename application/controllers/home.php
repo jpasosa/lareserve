@@ -1,7 +1,10 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+
 use Omnipay\Omnipay;
 use Omnipay\Common\CreditCard;
+
+
 
 class Home extends CI_Controller {
 
@@ -14,20 +17,6 @@ class Home extends CI_Controller {
 		$this->load->model('gift_model');
 		$this->load->model('ventas_model');
 
-		// MERCADOPAGO
-		$this->config->load("mercadopago", TRUE);
-    		$config = $this->config->item('mercadopago');
-    		$this->load->library('Mercadopago', $config['mercadopago']);
-	}
-
-
-	/**
-	 * método si se cancela la transacción
-	 **/
-	public function error()
-	{
-		echo 'fue cancelada la transacción';
-		die();
 	}
 
 
@@ -39,9 +28,6 @@ class Home extends CI_Controller {
 	 **/
 	public function index()
 	{
-
-
-
 
 		if($this->input->server('REQUEST_METHOD') == 'POST')
 		{
@@ -65,18 +51,16 @@ class Home extends CI_Controller {
 				if ( $gift['cantidad'] == 0) // Llegó al último Voucher debe enviar el email y cambiar los estados.
 				{
 
-					// Recogo todos los datos para enviar por mercadopago
+					// Recogo todos los datos para enviar por paypal
 					$items 					= $this->gift_model->get_gifts_for_mc($gift['IdVenta']);
-
 					$amount = (float)0;
 					foreach( $items AS $it)
 					{
 						$amount += $it['unit_price'];
 					}
-
 					$this->session->set_userdata('external_id', $gift['IdVenta'] );
 					$this->session->set_userdata('amount', $amount);
-
+					// PAYPAL
 					$gateway = Omnipay::create('PayPal_Express');
 					$gateway->setUsername('jpasosa_api1.gmail.com');
 					$gateway->setPassword('6U3MTUXB4TPUT2BH');
@@ -84,22 +68,21 @@ class Home extends CI_Controller {
 					$gateway->setTestMode(true);
 					$response = $gateway->purchase(
 															array(
-															'cancelUrl'=>'http://lareserve/home/error',
-															'returnUrl'=>'http://lareserve/home/pay',
+															'cancelUrl'=>base_url('home/error'),
+															'returnUrl'=>base_url('home/pay'),
 															'amount' =>  $amount,
 															'currency' => 'USD'
 															)
 														)->send();
-
 					if ($response->isRedirect()) {
-					    // redirect to offsite payment gateway
-					    $response->redirect();
+						// redirect to offsite payment gateway
+						$response->redirect();
 					} else {
-					    // payment failed: display message to customer
-					    echo $response->getMessage();
-						die();
+						// payment failed: display message to customer
+						echo $response->getMessage();
+						exit(1);
 					}
-
+					// FIN PAYPAL
 				}
 			}
 
@@ -131,8 +114,8 @@ class Home extends CI_Controller {
 
 		$response = $gateway->completePurchase(
 												array(
-												'cancelUrl'=>'http://lareserve/home/error',
-												'returnUrl'=>'http://lareserve/home/pay',
+												'cancelUrl'=>base_url('home/error'),
+												'returnUrl'=>base_url('home/pay'),
 												'amount' =>  $this->session->userdata('amount'),
 												'currency' => 'USD'
 												)
@@ -172,37 +155,21 @@ class Home extends CI_Controller {
 
 	}
 
-
-
-	public function test_log()
+	/**
+	 * método si se cancela la transacción
+	 **/
+	public function error()
 	{
-
-		$data_mp['collection_id'] = 'pepe';
-		$data_mp['collection_status'] = 'pepeus';
-		$data_mp['preference_id'] = 'pepe';
-		$data_mp['external_reference'] = 'pepe';
-
-		$error_pay = print_r($data_mp, TRUE);
-		log_message('error',  $error_pay);
-		die();
-
+		$this->session->unset_userdata('external_id');
+		$this->session->unset_userdata('amount');
+		redirect('home');
 	}
 
-	public function viene_mp()
-	{
-		die('datos de mp');
-	}
+
 
 	public function gracias()
 	{
 		$data = array();
-
-		// $data_mp['collection_id'] = $this->input->get('collection_id');
-		// $data_mp['collection_status'] = $this->input->get('collection_status');
-		// $data_mp['preference_id'] = $this->input->get('preference_id');
-		// $data_mp['external_reference'] = $this->input->get('external_reference');
-		// $data_mp['payment_type'] = $this->input->get('payment_type');
-
 		$this->session->unset_userdata('cantidad_total');
 		$this->load->view('gracias', $data);
 	}
@@ -212,6 +179,8 @@ class Home extends CI_Controller {
 		$data = array();
 		$this->load->view('template_gift', $data);
 	}
+
+
 
 	/**
 	 * Envía los mails con los Vouchers.

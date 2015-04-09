@@ -94,9 +94,9 @@
 									</select>
 								</div>
 
-				<hr  class="hr"/>
-									<h4 style="margin-top:15px;"> Completá los datos del voucher </h4>
-				<div class="form-row">
+								<hr  class="hr"/>
+								<h4 style="margin-top:15px;"> Completá los datos del voucher </h4>
+								<div class="form-row">
 									<input type="text" name="NombreComprador" id="nombre" disabled size="30" value="<?php if (isset($gift['NombreComprador'])): echo $gift['NombreComprador'];endif; ?>" title="Por favor ingresá tu nombre" required class="text login_input"  placeholder="¿Cómo te llamás?">
 								</div>
 								<div class="form-row">
@@ -107,7 +107,7 @@
 								</div>
 								<div class="form-row">
 									<input type="text" name="TelefonoComprador" id="telefono" disabled size="30" value="<?php if (isset($gift['TelefonoComprador'])): echo $gift['TelefonoComprador'];endif; ?>" class="text login_input" title="Ingresa tu teléfono"  required placeholder="Y acá indicanos tu teléfono">
-				</div>
+								</div>
 								<div class="form-row">
 									<input type="text" name="NombreAgasajado" id="nombre_para" disabled size="30" value="<?php if (isset($gift['NombreAgasajado'])): echo $gift['NombreAgasajado'];endif; ?>" title="Ingresa el nombre del agasajado" required class="text login_input"  placeholder="¿Cómo se llama quien recibe el regalo?">
 								</div>
@@ -119,30 +119,15 @@
 								</div>
 								<?php if ( isset($gift['cantidad']) && $gift['cantidad'] == 1 ): ?>
 										<!-- YA ES EL ULTIMO VOUCHER Y VA A COMPRAR -->
-										<!-- <div class="form-row"> -->
-											<a href="<?php echo base_url('home/pay_req'); ?>">
-												<input type='image' name='submit' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif' border='0' align='top' alt='Check out with PayPal' />
-											</a>
-											<!-- <img src="https://www.paypal.com/es_XC/i/btn/btn_xpressCheckout.gif" align="left" style="margin-right:7px;" /> -->
-										<!-- </div> -->
-										<!-- <div class="form-row">
-											<input type="submit" name="comprar" value="Confirmar" class="btn">
-										</div> -->
+										<input type='image' name='submit' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif' border='0' align='top' alt='Check out with PayPal' />
 								<?php elseif ( !isset($preferenceResult)): ?>
 										<!-- SIGUE AVANZANDO EN LOS VOUCHERS -->
 										<div class="form-row">
 											<input id="continuar"  style="display: none;" type="submit" name="continuar" value="Guardar y continuar" disabled class="btn">
 										</div>
-										<div class="form-row">
-											<input id="comprar" style="display: none;" type="submit" name="comprar" value="Confirmar" disabled class="btn">
-										</div>
+										<input id="comprar" style="display: none;" type='image' name='submit' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif' border='0' align='top' alt='Check out with PayPal' />
 								<?php else: ?>
-										<div class="form-row">
-											<form action="<?php echo base_url('home/pay_req'); ?>" method="post">
-												<input type='image' name='submit' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif' border='0' align='top' alt='Check out with PayPal'/>
-											</form>
-											<!-- <img src="https://www.paypal.com/es_XC/i/btn/btn_xpressCheckout.gif" align="left" style="margin-right:7px;" /> -->
-										</div>
+										<input type='image' name='submit' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif' border='0' align='top' alt='Check out with PayPal'/>
 								<?php endif; ?>
 							</form>
 						</div>
