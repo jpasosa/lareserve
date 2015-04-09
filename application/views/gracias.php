@@ -28,7 +28,7 @@
 			<div class="row">
 				<div class="span12">
 
-					<h1><a href="http://www.lareserve.com.uy/"><img src="<?php echo base_url() . TEMPLATE_ASSETS; ?>images/logo-spa.png" alt="Convert" /></a></h1>
+					<h1><a href="<?php echo base_url('home'); ?>"><img src="<?php echo base_url() . TEMPLATE_ASSETS; ?>images/logo-spa.png" alt="Convert" /></a></h1>
 					<h2 class="menulink"><a href="<?php echo base_url(''); ?>">Menu</a></h2>
 
 					<!-- Start Menu -->
@@ -60,7 +60,7 @@
    <p style="text-align:center; color:#555;"><span style="font-weight:600">Recibiste los Gift Certificates por mail para reenviar a tu agasajado.</span> <br />
 - No olvides revisar tu Correo No Deseado. Si no recibiste el voucher, enviá un mail a  <a class="link_sociales" href="mailto:recepcion@lareserve.com.uy">recepcion@lareserve.com.uy, </a> y te lo enviaremos en instantes.<br />
 - El agasajado solamente deberá comunicarse con recepción con el código que figura en el voucher para coordinar su visita al spa. <br />
-- Recordá que el Gift Certificate tiene una validez de 90 días. 
+- Recordá que el Gift Certificate tiene una validez de 90 días.
    </p>
    <hr style="color:#999;" />
    </div>
@@ -73,7 +73,7 @@
             <h2 style="text-align:center;">Recomendá a tus amigos lo fácil que es regalar en La Réserve!</h2>
             <!-- Go to www.addthis.com/dashboard to customize your tools -->
 	    <div style="text-align: center; min-height: 320px; /* position: absolute; */ padding-top: 40px; margin: 0; padding-left: 33%;" class="addthis_native_toolbox"></div>
-	    	
+
 
              </div>
 
