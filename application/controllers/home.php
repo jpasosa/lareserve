@@ -1,5 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+use Omnipay\Omnipay;
+use Omnipay\Common\CreditCard;
+
 class Home extends CI_Controller {
 
 
@@ -18,6 +21,15 @@ class Home extends CI_Controller {
 	}
 
 
+	/**
+	 * método si se cancela la transacción
+	 **/
+	public function error()
+	{
+		echo 'fue cancelada la transacción';
+		die();
+	}
+
 
 	/**
 	 * Formulario para el completado de las tarjetas gifts
@@ -27,6 +39,10 @@ class Home extends CI_Controller {
 	 **/
 	public function index()
 	{
+
+
+
+
 		if($this->input->server('REQUEST_METHOD') == 'POST')
 		{
 			$gift 	= $this->get_data_post();
@@ -49,29 +65,40 @@ class Home extends CI_Controller {
 				if ( $gift['cantidad'] == 0) // Llegó al último Voucher debe enviar el email y cambiar los estados.
 				{
 
-
-					// MERCADOPAGO
 					// Recogo todos los datos para enviar por mercadopago
-					$items = $this->gift_model->get_gifts_for_mc($gift['IdVenta']);
-					$preference['items'] 				= $items;
-					$preference['external_reference'] 	= 	$gift['IdVenta'];
-					$preference['back_urls'] 			= array("success" => 'http://regalos.lareserve.com.uy/home/gracias');
-					$preference['payment_methods'] 	= array (
-														            "excluded_payment_methods" => array (),
-														            "excluded_payment_types" => array (
-														                array ( "id" => "ticket" ),
-														                array ( "id" => "atm" )
-														            )
-														        );
+					$items 					= $this->gift_model->get_gifts_for_mc($gift['IdVenta']);
 
-					//$this->mercadopago->sandbox_mode('TRUE');
-					$preferenceResult = $this->mercadopago->create_preference($preference);
-					//Obtenemos el access_token
-					$accessToken = $this->mercadopago->get_access_token();
-					$data['preferenceResult'] = $preferenceResult;
-					// FIN mercadopago
+					$amount = (float)0;
+					foreach( $items AS $it)
+					{
+						$amount += $it['unit_price'];
+					}
 
+					$this->session->set_userdata('external_id', $gift['IdVenta'] );
+					$this->session->set_userdata('amount', $amount);
 
+					$gateway = Omnipay::create('PayPal_Express');
+					$gateway->setUsername('jpasosa_api1.gmail.com');
+					$gateway->setPassword('6U3MTUXB4TPUT2BH');
+					$gateway->setSignature('Au9yzpsJniTJon2P-Jo3tVpZ7dagAUv1aXC5hLb9TzpxTzgzkEMhXfMM');
+					$gateway->setTestMode(true);
+					$response = $gateway->purchase(
+															array(
+															'cancelUrl'=>'http://lareserve/home/error',
+															'returnUrl'=>'http://lareserve/home/pay',
+															'amount' =>  $amount,
+															'currency' => 'USD'
+															)
+														)->send();
+
+					if ($response->isRedirect()) {
+					    // redirect to offsite payment gateway
+					    $response->redirect();
+					} else {
+					    // payment failed: display message to customer
+					    echo $response->getMessage();
+						die();
+					}
 
 				}
 			}
@@ -88,81 +115,61 @@ class Home extends CI_Controller {
 		$this->load->view('home', $data);
 	}
 
+
+
 	/**
-	 * Recibo los datos que devuelve mercadopago
+	 * Recibo los datos que devuelve paypal
 	 **/
-	public function mp()
+	public function pay()
 	{
 
+		$gateway = Omnipay::create('PayPal_Express');
+		$gateway->setUsername('jpasosa_api1.gmail.com');
+		$gateway->setPassword('6U3MTUXB4TPUT2BH');
+		$gateway->setSignature('Au9yzpsJniTJon2P-Jo3tVpZ7dagAUv1aXC5hLb9TzpxTzgzkEMhXfMM');
+		$gateway->setTestMode(true);
 
-		$this->config->load("mercadopago", TRUE);
-    		$config = $this->config->item('mercadopago');
-    		$this->load->library('Mercadopago', $config['mercadopago']);
+		$response = $gateway->completePurchase(
+												array(
+												'cancelUrl'=>'http://lareserve/home/error',
+												'returnUrl'=>'http://lareserve/home/pay',
+												'amount' =>  $this->session->userdata('amount'),
+												'currency' => 'USD'
+												)
+											)->send();
 
-
-		$payment_info = $this->mercadopago->get_payment_info($_GET["id"]);
-
-		$error_pay = print_r($payment_info, TRUE);
--		log_message('error',  $error_pay);
-
-
-		if ($this->input->get('id')) {
-			$id_mp = $this->input->get('id');
-			log_message('info',  'muestro id devuelto por mercadopago: ' . print_r($id_mp));
-		}
-		if ($this->input->get('topic')) {
-			$topic_mp = $this->input->get('topic');
-			log_message('info',  'muestro topic devuelto por mercadopago: ' . print_r($topic_mp));
-		}
-
-		// Show payment information
-		if (isset($payment_info["status"]) && $payment_info["status"] == 200)
-		{
-			log_message('info',  'Entro dentro del if que dio status 200');
-			$data_mp['id_pago']          			= $payment_info["response"]["collection"]["id"];
-			$data_mp['fecha_pago']       		= $payment_info["response"]["collection"]["date_created"];
-			$data_mp['fecha_estatus']    		= $payment_info["response"]["collection"]["last_modified"];
-			$data_mp['cod_carrit']     			= $payment_info["response"]["collection"]["order_id"];
-			$data_mp['external_reference']     	= $payment_info["response"]["collection"]["external_reference"];
-			$data_mp['estatus']          			= $payment_info["response"]["collection"]["status"];
-			$data_mp['monto']            			= $payment_info["response"]["collection"]["transaction_amount"];
-			$data_mp['email']            			= $payment_info["response"]["collection"]["payer"]["email"];
-			$data_mp['ci']               			= $payment_info["response"]["collection"]["payer"]["identification"]["number"];
-		}
+    		$data = $response->getData(); // this is the raw response object
 
 
 
-		if ( isset($data_mp['estatus']) && $data_mp['estatus'] == 'approved') {
+
+		if ( $data['ACK'] == 'Success') {
 			// Debe capturar el estado que devuelve mercado pago y completarlo en el estado de la venta.
-			$status_mp = 3;
-			$estado_mp = $this->ventas_model->set_estado_mp($data_mp['external_reference'], $status_mp);
-			$send_mails = $this->_send_mails( $data_mp['external_reference'] );
-		} else if(isset($data_mp['estatus']) && $data_mp['estatus'] == 'pending') {
-			$status_mp = 2;
-			$estado_mp = $this->ventas_model->set_estado_mp($data_mp['external_reference'], $status_mp);
-		} else if(isset($data_mp['estatus']) && $data_mp['estatus'] == 'cancelled') {
-			$status_mp = 5;
-			$estado_mp = $this->ventas_model->set_estado_mp($data_mp['external_reference'], $status_mp);
+			$status_paypal = 3; // ingreso ACEPTADO por que está devolviendo approved el array de mercadopago.
+			$estado_paypal = $this->ventas_model->set_estado_mp($this->session->userdata('external_id'), $status_paypal);
+			$send_mails = $this->_send_mails( $this->session->userdata('external_id') );
+			if ( $send_mails ) {
+				$this->session->set_flashdata('success','Los Vouchers se han cargado y enviado con éxito');
+				$this->session->unset_userdata('external_id');
+				$this->session->unset_userdata('amount');
+				redirect('home/gracias');
+			} else {
+				$this->session->set_flashdata('success','Los Vouchers no se pudieron enviar.');
+				$this->session->unset_userdata('external_id');
+				$this->session->unset_userdata('amount');
+				redirect('home');
+			}
+
 		} else { // Por algún motivo no fue aceptada.
-			$status_mp = 4;
-			$estado_mp = $this->ventas_model->set_estado_mp($data_mp['external_reference'], $status_mp);
+			$status_paypal = 4; // estado ERROR por que la devolucion de MP fue de error.
+			$estado_paypal = $this->ventas_model->set_estado_mp($this->session->userdata('external_id'), $status_paypal);
+			$this->session->set_flashdata('success','La transacción no se pudo realizar a través de Paypal. Controlar con su usuario por favor.');
+			$this->session->unset_userdata('external_id');
+			$this->session->unset_userdata('amount');
+			redirect('home');
 		}
 
 
-
-
-		// print_r ($paymentInfo);
-		//Respuesta: {"protocolVersion":{"major":1,"minor":1,"protocol":"HTTP"},"reasonPhrase":"OK","statusCode":200}
-		// if($this->input->server('REQUEST_METHOD') == 'POST')
-		// {
-		// 	$paymentInfo = $this->mercadopago->get_payment_info ($_GET["id"]);
-		// 	header ("", true, $paymentInfo["status"]);
-		// 	print_r ($paymentInfo);
-		// }
-		// // error_reporting(E_ALL);
-		// $id = $this->input->post("id");
-		// log_message('error', $id);
-		// $paymentInfo = $this->mercadopago->get_payment_info($id);
 	}
 
 
