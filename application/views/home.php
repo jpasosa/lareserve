@@ -89,7 +89,7 @@
 									<select name="IdServicio" id="servicio" required disabled title="Debes seleccionar un tratamiento">
 										<option value="" > Valores de referencia</option>
 										<?php foreach ($servicios AS $serv): ?>
-										<option value="<?php echo $serv['IdServicio']; ?>" data-nombre-servicio="<?php echo $serv['Nombre']; ?>"> <?php echo $serv['Nombre']; ?> ( $<?php echo $serv['Valor']; ?> ) </option>
+										<option value="<?php echo $serv['IdServicio']; ?>" data-nombre-servicio="<?php echo $serv['Nombre']; ?>"> <?php echo $serv['Nombre']; ?> ( usd $<?php echo $serv['Valor']; ?> ) </option>
 										<?php endforeach; ?>
 									</select>
 								</div>
