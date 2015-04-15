@@ -61,11 +61,12 @@ class Home extends CI_Controller {
 					$this->session->set_userdata('external_id', $gift['IdVenta'] );
 					$this->session->set_userdata('amount', $amount);
 					// PAYPAL
+					$this->config->load('paypal');
 					$gateway = Omnipay::create('PayPal_Express');
-					$gateway->setUsername('jpasosa_api1.gmail.com');
-					$gateway->setPassword('6U3MTUXB4TPUT2BH');
-					$gateway->setSignature('Au9yzpsJniTJon2P-Jo3tVpZ7dagAUv1aXC5hLb9TzpxTzgzkEMhXfMM');
-					$gateway->setTestMode(true);
+					$gateway->setUsername( $this->config->item('paypal_username') );
+					$gateway->setPassword( $this->config->item('paypal_pass') );
+					$gateway->setSignature( $this->config->item('paypal_signature') );
+					$gateway->setTestMode(false);
 					$response = $gateway->purchase(
 															array(
 															'cancelUrl'=>base_url('home/error'),
